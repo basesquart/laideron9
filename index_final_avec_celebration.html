@@ -1,0 +1,247 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Téléphone de Célia</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #111;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      color: white;
+    }
+    #phone {
+      width: 360px;
+      height: 720px;
+      background: #000;
+      border: 16px solid #333;
+      border-radius: 40px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    #lock-screen, #home-screen, #gallery-app {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    #home-screen, #gallery-app { display: none; }
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .key {
+      background: #222;
+      border: none;
+      padding: 20px;
+      font-size: 1.5em;
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+    }
+    .app-icon {
+      width: 80px;
+      height: 80px;
+      background: white;
+      color: black;
+      font-weight: bold;
+      border-radius: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      overflow-y: auto;
+      height: 80%;
+    }
+    .gallery img {
+      width: 100px;
+      height: auto;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .full-img {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    .full-img img {
+      max-width: 90%;
+      max-height: 80%;
+    }
+    .delete-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: red;
+      color: white;
+      border: none;
+      font-size: 1.2em;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .final-message {
+      text-align: center;
+      padding: 30px;
+      font-size: 1.2em;
+      background: #222;
+      border-radius: 20px;
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  </style>
+</head>
+<body>
+  <div id="phone">
+    <div id="lock-screen">
+      <h2>Supprime vite les photos avant qu'elles ne soient trop tard...</h2>
+      <p>Entrez le mot de passe :</p>
+      <input type="password" id="code" readonly>
+      <div class="keypad">
+        <button class="key" onclick="addKey('i')">i</button>
+        <button class="key" onclick="addKey('l')">l</button>
+        <button class="key" onclick="addKey('o')">o</button>
+        <button class="key" onclick="addKey('v')">v</button>
+        <button class="key" onclick="addKey('e')">e</button>
+        <button class="key" onclick="addKey('y')">y</button>
+        <button class="key" onclick="addKey('s')">s</button>
+        <button class="key" onclick="addKey('é')">é</button>
+        <button class="key" onclick="clearCode()">⌫</button>
+        <button class="key" onclick="checkCode()">✔</button>
+      </div>
+    </div>
+
+    <div id="home-screen">
+      <div class="app-icon" onclick="openGallery()">Galerie</div>
+    </div>
+
+    <div id="gallery-app">
+      <div class="gallery" id="gallery"></div>
+    </div>
+  </div>
+
+  <audio id="audio-success" src="success.mp3"></audio>
+  <audio id="audio-error" src="error.mp3"></audio>
+  <audio id="victory-sound" src="victory meme (sound effect).mp3"></audio>
+  <audio autoplay loop>
+    <source src="Cinematic Tension NoCopyright Background Music for Video  Tensions Run High by soundridemusic.mp3" type="audio/mp3">
+  </audio>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <script>
+    const codeInput = document.getElementById('code');
+    const lockScreen = document.getElementById('lock-screen');
+    const homeScreen = document.getElementById('home-screen');
+    const galleryApp = document.getElementById('gallery-app');
+    const audioSuccess = document.getElementById('audio-success');
+    const audioError = document.getElementById('audio-error');
+    const gallery = document.getElementById('gallery');
+    const victorySound = document.getElementById('victory-sound');
+    const correctCode = "iloveysé";
+    let images = [
+      "73970D94-3A73-45A5-A7A3-6F547C98F152.JPEG",
+      "IMG_0737 2.jpg",
+      "IMG_0742.jpg",
+      "IMG_0744.jpg",
+      "IMG_0751.jpg",
+      "IMG_0753.jpg",
+      "777B4777-4979-47C4-ACC9-296A860BEE04.JPEG"
+    ];
+
+    function addKey(letter) {
+      codeInput.value += letter;
+    }
+
+    function clearCode() {
+      codeInput.value = codeInput.value.slice(0, -1);
+    }
+
+    function checkCode() {
+      if (codeInput.value === correctCode) {
+        audioSuccess.play();
+        lockScreen.style.display = "none";
+        homeScreen.style.display = "flex";
+      } else {
+        audioError.play();
+        alert("Mauvais code !");
+      }
+    }
+
+    function openGallery() {
+      homeScreen.style.display = "none";
+      galleryApp.style.display = "flex";
+      displayGallery();
+    }
+
+    function displayGallery() {
+      gallery.innerHTML = "";
+      images.forEach((img, index) => {
+        const image = document.createElement("img");
+        image.src = img;
+        image.onclick = () => openFull(img, index);
+        gallery.appendChild(image);
+      });
+    }
+
+    function openFull(imgSrc, index) {
+      const overlay = document.createElement("div");
+      overlay.className = "full-img";
+      const img = document.createElement("img");
+      img.src = imgSrc;
+      const btn = document.createElement("button");
+      btn.className = "delete-btn";
+      btn.textContent = "Supprimer cette photo";
+      btn.onclick = () => {
+        audioSuccess.play();
+        images.splice(index, 1);
+        overlay.remove();
+        displayGallery();
+        if (images.length === 0) {
+          showFinalCelebration();
+        }
+      };
+      overlay.appendChild(img);
+      overlay.appendChild(btn);
+      document.body.appendChild(overlay);
+    }
+
+    function showFinalCelebration() {
+      const msg = document.createElement("div");
+      msg.className = "final-message";
+      msg.innerHTML = "Bravo Ysé, nous avons évité la catastrophe.<br>Tu es vraiment une vraie queen, à l’image de ton grand âge.";
+      document.body.appendChild(msg);
+      victorySound.play();
+      confetti();
+    }
+  </script>
+</body>
+</html>
