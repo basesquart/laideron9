@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Alerte Vol</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1, h2, h3, p {
+      margin: 20px 0;
+    }
+    input[type="text"] {
+      padding: 10px;
+      font-size: 1em;
+      width: 80%;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    .option-btn {
+      display: block;
+      margin: 10px auto;
+      padding: 10px;
+      width: 60%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="app"></div>
+
+  <audio id="audio-success" src="success.mp3"></audio>
+  <audio id="audio-error" src="error.mp3"></audio>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <script>
+    const app = document.getElementById('app');
+    const audioSuccess = document.getElementById('audio-success');
+    const audioError = document.getElementById('audio-error');
+
+    const quizQuestions = [
+      {
+        question: "Quel est ton animal totem ?",
+        options: ["le chimpanzé", "le rat", "le pâté en boîte"],
+        correctIndex: 1
+      },
+      {
+        question: "Avec qui pourrais-tu te marier et finir ta vie ?",
+        options: ["un homme viril", "un homosexuel", "Agathe Diot Richard"],
+        correctIndex: 1
+      },
+      {
+        question: "Quel est ton voyage de rêve ?",
+        options: ["la Turquie", "le Cavu d’Agathe Diot Richard", "n’importe où tant que c’est seule avec Olivia"],
+        correctIndex: 0
+      }
+    ];
+
+    let currentQuestionIndex = 0;
+
+    function showHomeScreen() {
+      app.innerHTML = `
+        <h1>🚨 ALERTE VOL 🚨</h1>
+        <p>Une seule personne peut stopper cette tragédie....</p>
+        <h2>Qui es-tu ?</h2>
+        <input type="text" id="prenom" placeholder="Ton prénom">
+        <br>
+        <button onclick="verifyPrenom()">Valider</button>
+      `;
+    }
+
+    function verifyPrenom() {
+      const prenom = document.getElementById('prenom').value.trim();
+      if (prenom === "Ysé" || prenom === "Yse") {
+        showQuizScreen();
+      } else {
+        audioError.play();
+        setTimeout(() => {
+          document.body.innerHTML = "<h1>❌ Accès refusé ❌</h1>";
+          window.close();
+        }, 1000);
+      }
+    }
+
+    function showQuizScreen() {
+      if (currentQuestionIndex >= quizQuestions.length) {
+        showFinalScreen();
+        return;
+      }
+      const currentQuestion = quizQuestions[currentQuestionIndex];
+      let optionsHtml = "";
+      currentQuestion.options.forEach((option, index) => {
+        optionsHtml += `<button class="option-btn" onclick="checkAnswer(${index})">${option}</button>`;
+      });
+      app.innerHTML = `
+        <h2>Mais es-tu réellement Ysé ?</h2>
+        <p>Réponds à ces questions pour voir si tu es vraiment Ysé :</p>
+        <h3>${currentQuestion.question}</h3>
+        ${optionsHtml}
+      `;
+    }
+
+    function checkAnswer(selectedIndex) {
+      const currentQuestion = quizQuestions[currentQuestionIndex];
+      if (selectedIndex === currentQuestion.correctIndex) {
+        audioSuccess.play();
+        currentQuestionIndex++;
+        setTimeout(showQuizScreen, 1000);
+      } else {
+        audioError.play();
+        setTimeout(() => {
+          document.body.innerHTML = "<h1>❌ Accès refusé ❌</h1>";
+          window.close();
+        }, 1000);
+      }
+    }
+
+    function showFinalScreen() {
+      app.innerHTML = `
+        <h2>Bon, tu es bien la moche.</h2>
+        <p>Je vais pouvoir te donner le mot de passe du téléphone de Célia afin que tu puisses supprimer les photos qui ne te mettent, ma foi, pas en valeur</p>
+        <p>Le mot de passe est : <strong>iloveysé</strong></p>
+        <a href="phone.html">Accéder au téléphone de Célia</a>
+      `;
+      launchConfetti();
+    }
+
+    function launchConfetti() {
+      const duration = 3 * 1000;
+      const end = Date.now() + duration;
+      (function frame() {
+        confetti({ particleCount: 3, spread: 160, origin: { x: Math.random(), y: Math.random() - 0.2 } });
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      }());
+    }
+
+    showHomeScreen();
+  </script>
+</body>
+</html>
